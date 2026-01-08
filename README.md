@@ -13,7 +13,7 @@ AI-powered house visualization tool using Stable Diffusion XL.
 - Python 3.10+
 - CUDA-capable GPU (8GB+ VRAM recommended)
 - ~15GB disk space for model weights
-
+IMPORTANT: The LoRA weights are not included in this repo. I will provide a link to them later on. The model quality might be not as expected without the weights
 ### Installation
 
 1. Clone the repository:
@@ -55,4 +55,5 @@ Open browser to `http://localhost:5000`
 MIT
 
 ## Credits
+
 Created by Justus Engel / EngelData
