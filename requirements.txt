@@ -4,33 +4,3 @@ diffusers==0.25.0
 accelerate==0.25.0
 safetensors==0.4.1
 transformers==4.36.0
-```
-
-**.gitignore** :
-```
-# Model weights - TOO LARGE for GitHub
-lora_weights/
-*.safetensors
-*.bin
-*.ckpt
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-env/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Flask
-instance/
-.env
