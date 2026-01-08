@@ -18,7 +18,7 @@ IMPORTANT: The LoRA weights are not included in this repo. I will provide a link
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/genestate-ai.git
+git clone https://github.com/JustEngl/GenEstate_Ai.git
 cd genestate-ai
 ```
 
@@ -64,5 +64,6 @@ MIT
 
 ## Credits
 
-Created by Justus Engel / EngelData
+Created by Justus Engel / EngelData in 2025
+
 
