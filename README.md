@@ -11,7 +11,7 @@ AI-powered house visualization tool using Stable Diffusion XL.
 
 ### Prerequisites
 - Python 3.10+
-- CUDA-capable GPU (8GB+ VRAM recommended)
+- CUDA-capable GPU (8GB+ VRAM recommended), supporting CUDA 11.8
 - ~15GB disk space for model weights
 IMPORTANT: The LoRA weights are not included in this repo. I will provide a link to them later on. The model quality might be not as expected without the weights
 ### Installation
@@ -32,10 +32,18 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+4. Install CUDA-specific PyTorch packages:
+```bash   
+pip install torch==2.3.1+cu118 torchvision==0.18.1+cu118 torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+5. Install xFormers (required for faster generation):
+```
+pip install "https://download.pytorch.org/whl/cu118/xformers-0.0.27%2Bcu118-cp311-cp311-win_amd64.whl"
+```
 
-4. Download model weights:
+6. (OPTIONAL) Download model weights:
 The base model downloads automatically. For the LoRA weights, you need to:
-- [Explain where to get your LoRA weights]
+- Download from ... (coming soon)
 - Place them in `lora_weights/genestate_lora_final/`
 
 ### Running
@@ -57,3 +65,4 @@ MIT
 ## Credits
 
 Created by Justus Engel / EngelData
+
