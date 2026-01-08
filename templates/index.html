@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Genestate AI</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h1>Genestate AI</h1>
+        <div class="by">by EngelData</div>
+    </div>
+    
+    <div class="container">
+        <div class="preview-section">
+            <div class="preview-box" id="previewBox">
+                <span class="progress-text">Ready to generate</span>
+            </div>
+        </div>
+        
+        <div class="controls-column">
+            <div class="controls-section">
+                <div class="section-title">Selection Options</div>
+                
+                <div class="control-group">
+                    <label class="control-label">Style</label>
+                    <div class="button-group">
+                        <button class="option-button active" data-group="style" data-value="modern">Modern</button>
+                        <button class="option-button" data-group="style" data-value="wooden">Wooden</button>
+                        <button class="option-button" data-group="style" data-value="mediterranean">Mediterranean</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Size</label>
+                    <div class="button-group">
+                        <button class="option-button" data-group="size" data-value="small">Small</button>
+                        <button class="option-button active" data-group="size" data-value="medium">Medium</button>
+                        <button class="option-button" data-group="size" data-value="large">Large</button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Roof Color</label>
+                    <div class="color-group">
+                        <div class="color-swatch color-dark active" data-group="roof" data-value="dark"></div>
+                        <div class="color-swatch color-red" data-group="roof" data-value="red"></div>
+                        <div class="color-swatch color-light" data-group="roof" data-value="light"></div>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <label class="control-label">Extras</label>
+                    <div class="radio-group">
+                        <div class="radio-item">
+                            <input type="radio" id="none" name="extra" value="none" checked>
+                            <label for="none">None</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="pool" name="extra" value="pool">
+                            <label for="pool">Pool</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="garage" name="extra" value="garage">
+                            <label for="garage">Garage</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="generate-button" onclick="generateHouse()">Generate House</button>
+            </div>
+            
+            <div class="price-section">
+                <div id="priceContent" class="price-placeholder">
+                    Select options and click "Estimate Price" to see the estimated value
+                </div>
+                <button class="estimate-button" onclick="estimatePrice()">Estimate Price</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
