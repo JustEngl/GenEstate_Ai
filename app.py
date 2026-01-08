@@ -7,24 +7,22 @@ import random
 import gc
 import time
 
-# ──────────────────────────────────────────────────────
-# 🔧 SETUP
-# ──────────────────────────────────────────────────────
+#setup
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO)
 
 def cleanup_memory():
-    """Clean up GPU memory to prevent out-of-memory errors"""
+    
     gc.collect()
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
 
-# Model configuration
+#model config and paths
 base_model = "Lykon/dreamshaper-xl-v2-turbo"
 lora_path = "lora_weights/genestate_lora_final"
 
-logging.info("🔄 Lade Dreamshaper XL Turbo...")
+logging.info("loading model (dsxlv2)")
 
 try:
     cleanup_memory()
@@ -37,21 +35,21 @@ try:
         use_safetensors=True,
     )
     
-    # Load LoRA weights
+    # Load lora weights
     try:
         pipe.load_lora_weights(lora_path)
         pipe.fuse_lora(lora_scale=1.0)
-        logging.info("✅ LoRA geladen und gefused")
+        logging.info("completed lora loading")
     except Exception as e:
-        logging.warning(f"⚠️  LoRA Fehler: {str(e)}")
+        logging.warning(f"lora error: {str(e)}")
     
     pipe.to("cuda")
     
-    # Enable optimizations
+
     pipe.enable_vae_tiling()
     
-    # Warm-up generation
-    logging.info("🔥 Warming up...")
+    
+    logging.info("starting pipe warmup")
     with torch.inference_mode():
         _ = pipe(
             prompt="4k, medium modern villa",
@@ -62,19 +60,17 @@ try:
         ).images[0]
     cleanup_memory()
     
-    logging.info("✅ Ready!")
+    logging.info("completed, ready")
     
 except Exception as e:
-    logging.error(f"❌ Fehler: {str(e)}")
+    logging.error(f"error: {str(e)}")
     raise
 
-# ──────────────────────────────────────────────────────
-# 🖼️ IMAGE GENERATION
-# ──────────────────────────────────────────────────────
+#image gen
 
 def generate_house_image(style, size, roof_color, extra):
     """
-    Generate house image based on user parameters
+    generate house image based on user parameters
     
     Args:
         style: 'modern', 'wooden', or 'mediterranean'
@@ -88,14 +84,13 @@ def generate_house_image(style, size, roof_color, extra):
     
     seed = random.randint(0, 2**32 - 1)
     
-    # Build prompt
+    #base prompt (4k = trigger)
     prompt = "4k, highly detailed"
     
-    # Size mapping
     size_map = {'small': 'small', 'medium': 'medium', 'large': 'big'}
     prompt += f", {size_map[size]}"
     
-    # Style
+    
     if style == 'modern':
         prompt += " modern villa"
     elif style == 'wooden':
@@ -103,15 +98,15 @@ def generate_house_image(style, size, roof_color, extra):
     else:
         prompt += " mediterranean villa"
     
-    # Story count for large modern houses
+    
     if style == 'modern' and size == 'large':
         prompt += ", 2 story"
     
-    # Modern-specific details
+    
     if style == 'modern':
         prompt += ", white facade, interior lighting, glass panels, clean lines, minimalist design"
     
-    # Roof color
+    
     if roof_color == 'dark':
         prompt += ", dark gray slate roof"
     elif roof_color == 'red':
@@ -119,7 +114,7 @@ def generate_house_image(style, size, roof_color, extra):
     else:
         prompt += ", light beige tile roof"
     
-    # Extras
+    #
     if extra == 'pool':
         prompt += ", lawn and pool in front, water feature"
     elif extra == 'garage':
@@ -127,10 +122,9 @@ def generate_house_image(style, size, roof_color, extra):
     else:
         prompt += ", manicured lawn, garden landscaping"
     
-    # Quality enhancements
+    #other asethetic addings
     prompt += ", trees on sides, professional architectural photography, sharp focus, crisp details, pristine, photorealistic, masterpiece"
     
-    # Negative prompt to avoid common issues
     negative_prompt = (
         "blurry, soft focus, out of focus, fuzzy, hazy, foggy, "
         "low quality, bad quality, worst quality, poor quality, low resolution, "
@@ -147,8 +141,8 @@ def generate_house_image(style, size, roof_color, extra):
         "amateur, unprofessional"
     )
     
-    logging.info(f"🎨 '{prompt[:100]}...'")
-    logging.info(f"🎲 Seed: {seed}")
+    logging.info(f" '{prompt[:100]}...'")
+    logging.info(f" seed: {seed}")
     
     try:
         cleanup_memory()
@@ -165,21 +159,19 @@ def generate_house_image(style, size, roof_color, extra):
                 generator=torch.Generator(device="cuda").manual_seed(seed),
             ).images[0]
         
-        logging.info(f"⏱️  {time.time() - start:.2f}s")
+        logging.info(f" time: {time.time() - start:.2f}s")
         return image
         
     except Exception as e:
-        logging.error(f"❌ {str(e)}")
+        logging.error(f"error: {str(e)}")
         cleanup_memory()
         raise
 
-# ──────────────────────────────────────────────────────
-# 💰 PRICE ESTIMATION
-# ──────────────────────────────────────────────────────
+#price estimation demo functgion that works random and with hard coded values right now
 
 def estimate_price(style, size, roof_color, extra):
     """
-    Estimate house price based on parameters
+    esttimate house price based on parameters
     
     Args:
         style: House style
@@ -190,6 +182,7 @@ def estimate_price(style, size, roof_color, extra):
     Returns:
         Estimated price in euros
     """
+    
     base_prices = {'small': 250000, 'medium': 400000, 'large': 650000}
     style_multipliers = {'modern': 1.15, 'wooden': 1.0, 'mediterranean': 1.1}
     roof_adjustments = {'dark': 0, 'red': 5000, 'light': 3000}
@@ -203,22 +196,20 @@ def estimate_price(style, size, roof_color, extra):
     elif extra == 'garage':
         price += 35000
     
-    # Add random variation
+    # add random variation
     price *= random.uniform(0.95, 1.05)
     return int(price)
 
-# ──────────────────────────────────────────────────────
-# 🌐 API ROUTES
-# ──────────────────────────────────────────────────────
+#api
 
 @app.route('/')
 def home():
-    """Render the main page"""
+    
     return render_template('index.html')
 
 @app.route('/generate', methods=['POST'])
 def generate_image():
-    """Generate house image based on user parameters"""
+    
     try:
         data = request.json
         
@@ -227,17 +218,17 @@ def generate_image():
         roof_color = str(data.get('roof_color', 'dark'))
         extra = str(data.get('extra', 'none'))
         
-        logging.info(f"📥 style={style}, size={size}, roof={roof_color}, extra={extra}")
+        logging.info(f" style={style}, size={size}, roof={roof_color}, extra={extra}")
         
-        # Generate image
+        
         image = generate_house_image(style, size, roof_color, extra)
         
-        # Convert to JPEG
+        # Convert to jpeg
         img_io = BytesIO()
         image.save(img_io, 'JPEG', quality=95, optimize=True)
         img_io.seek(0)
         
-        logging.info(f"✅ Bild generiert ({img_io.getbuffer().nbytes / 1024:.1f} KB)")
+        logging.info(f"generated image ({img_io.getbuffer().nbytes / 1024:.1f} KB)")
         
         return send_file(
             img_io,
@@ -247,13 +238,12 @@ def generate_image():
         )
         
     except Exception as e:
-        logging.error(f"❌ Fehler bei Generierung: {str(e)}", exc_info=True)
+        logging.error(f"error while generating: {str(e)}", exc_info=True)
         cleanup_memory()
         return jsonify({'error': str(e)}), 500
 
 @app.route('/estimate-price', methods=['POST'])
 def estimate_price_route():
-    """Estimate house price based on parameters"""
     try:
         data = request.json
         price = estimate_price(
@@ -267,12 +257,11 @@ def estimate_price_route():
             'formatted': f"€{price:,}".replace(',', '.')
         })
     except Exception as e:
-        logging.error(f"❌ Fehler bei Preisschätzung: {str(e)}")
+        logging.error(f"error on price estiamtion: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    """Health check endpoint for monitoring"""
     try:
         mem_alloc = torch.cuda.memory_allocated() / 1024**3
         mem_reserved = torch.cuda.memory_reserved() / 1024**3
@@ -286,17 +275,16 @@ def health_check():
     except Exception as e:
         return jsonify({'status': 'error', 'error': str(e)}), 500
 
-# ──────────────────────────────────────────────────────
-# 🚀 RUN
-# ──────────────────────────────────────────────────────
+
 
 if __name__ == '__main__':
-    # Enable performance optimizations
+    #performance optims
     torch.backends.cudnn.benchmark = True
     torch.backends.cuda.matmul.allow_tf32 = True
     
-    logging.info(f"🚀 Server auf http://0.0.0.0:5000")
-    logging.info(f"🎮 GPU: {torch.cuda.get_device_name(0)}")
-    logging.info(f"💾 VRAM: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}GB")
+    logging.info(f"running on http://0.0.0.0:5000")
+    logging.info(f"gpu type: {torch.cuda.get_device_name(0)}")
+    logging.info(f"vram: {torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}GB")
     
+
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=False)
